@@ -4,7 +4,7 @@ import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
-const LineChart = ({ data }) => {
+const LineChart = React.memo(({ data }) => {
   const chartData = {
     labels: Object.keys(data),
     datasets: Object.keys(data[Object.keys(data)[0]]).map((dataset, index) => ({
@@ -15,7 +15,49 @@ const LineChart = ({ data }) => {
     })),
   };
 
-  return <Line data={chartData} />;
-};
+  const chartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    animation: {
+      duration: 500, // Reduce the animation duration for faster renders
+    },
+    hover: {
+      mode: 'nearest',
+      intersect: true,
+      animationDuration: 0, // Disable hover animation
+    },
+    plugins: {
+      legend: {
+        display: true,
+        position: 'top',
+      },
+      tooltip: {
+        enabled: true,
+      },
+    },
+    scales: {
+      x: {
+        display: true,
+        title: {
+          display: true,
+          text: 'Time',
+        },
+      },
+      y: {
+        display: true,
+        title: {
+          display: true,
+          text: 'Value',
+        },
+      },
+    },
+  };
+
+  return (
+    <div style={{ position: 'relative', height: '400px' }}>
+      <Line data={chartData} options={chartOptions} />
+    </div>
+  );
+});
 
 export default LineChart;

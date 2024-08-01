@@ -1,5 +1,5 @@
 // src/components/ParentComponent.js
-import React, { useState } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import JsonFetcher from './JsonFetcher';
 import LineChart from './LineChart';
 import BarChart from './BarChart';
@@ -12,28 +12,30 @@ const Parent = () => {
   const [dataView, setDataView] = useState('monthly');
   const [selectedMonth, setSelectedMonth] = useState('January');
 
-  const handleDataLoaded = (data) => {
+  const handleDataLoaded = useCallback((data) => {
     setChartData(data);
-  };
+  }, []);
 
-  const handleChartTypeChange = (type) => {
+  const handleChartTypeChange = useCallback((type) => {
     setChartType(type);
-  };
+  }, []);
 
-  const handleDataViewChange = (event) => {
+  const handleDataViewChange = useCallback((event) => {
     setDataView(event.target.value);
-  };
+  }, []);
 
-  const handleMonthChange = (event) => {
+  const handleMonthChange = useCallback((event) => {
     setSelectedMonth(event.target.value);
-  };
+  }, []);
 
-  const renderChart = () => {
+  const filteredData = useMemo(() => {
+    return transformData(chartData, dataView, selectedMonth);
+  }, [chartData, dataView, selectedMonth]);
+
+  const renderChart = useMemo(() => {
     if (!chartData) {
       return <p>Loading data...</p>;
     }
-
-    const filteredData = transformData(chartData, dataView, selectedMonth);
 
     if (Object.keys(filteredData).length === 0) {
       return <p>No data available for this selection.</p>;
@@ -41,13 +43,13 @@ const Parent = () => {
 
     switch (chartType) {
       case 'line':
-        return <LineChart data={filteredData} />;
+        return <LineChart className="chart" data={filteredData} />;
       case 'bar':
-        return <BarChart data={filteredData} />;
+        return <BarChart className="chart" data={filteredData} />;
       default:
         return null;
     }
-  };
+  }, [chartData, chartType, filteredData]);
 
   return (
     <div>
@@ -56,14 +58,16 @@ const Parent = () => {
       <Filter onChartTypeChange={handleChartTypeChange} onDataViewChange={handleDataViewChange} />
       {dataView !== 'monthly' && chartData && (
         <select onChange={handleMonthChange} value={selectedMonth}>
-          {Object.keys(chartData || {}).map(month => (
-            <option key={month} value={month}>{month}</option>
+          {Object.keys(chartData || {}).map((month) => (
+            <option key={month} value={month}>
+              {month}
+            </option>
           ))}
         </select>
       )}
-      {renderChart()}
+      {renderChart}
     </div>
   );
 };
 
-export default Parent;
+export default React.memo(Parent);

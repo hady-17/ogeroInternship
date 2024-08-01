@@ -1,7 +1,7 @@
 // src/components/Filter.js
 import React from 'react';
 
-const Filter = ({ onChartTypeChange, onDataViewChange }) => {
+const Filter = React.memo(({ onChartTypeChange, onDataViewChange }) => {
   return (
     <div>
       <div>
@@ -40,6 +40,6 @@ const Filter = ({ onChartTypeChange, onDataViewChange }) => {
       </div>
     </div>
   );
-};
+});
 
 export default Filter;
